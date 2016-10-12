@@ -14,35 +14,31 @@
 #include <OSCBundle.h>
 #include <OSCData.h>
 
-//char ssid[] = "PropagandaFunk";          // your network SSID (name)
-//char pass[] = "****";      // your network password
-char ssid[] = "FabLab Karlsruhe 2";   // your network SSID (name)
-char pass[] = "foobar42";             // your network password
+//#include <NeoPixelBus.h>
+#include <Adafruit_NeoPixel.h>
 
+char ssid[] = "PropagandaFunk";         // your network SSID (name)
+char pass[] = "howimetyourfather";      // your network password
+//char ssid[] = "FabLab Karlsruhe 2";   // your network SSID (name)
+//char pass[] = "foobar42";             // your network password
 
 // A UDP instance to let us send and receive packets over UDP
 WiFiUDP Udp;
-const IPAddress outIp(192,168,0,25);        // remote IP (not needed for receive)
-const unsigned int outPort = 9999;          // remote port (not needed for receive)
 const unsigned int localPort = 1234;        // local port to listen for UDP packets (here's where we send the packets)
 
 OSCErrorCode error;
 unsigned int ledState = LOW;              // LOW means led is *on*
 
-#include <NeoPixelBus.h>
 
-const uint16_t PixelCount = 4; // this assumes 4 
-// ignored for Esp8266! It's GPIO03 by default (RX pin on the NodeMCU)
-const uint8_t PixelPin = 0;  // make sure to set this to the correct pin
+const uint16_t pixelCount = 4; // this assumes 4 
+// ignored for Esp8266 with NeopixelBus! It's GPIO03 by default (RX pin on the NodeMCU)
+const uint8_t PixelPin = 0;  // make sure to set this to the correct pin (D3 -> 0)
 
-NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> strip(PixelCount, PixelPin);
+uint8_t pixelBuffer[pixelCount*3];
 
-#define colorSaturation 128
-RgbColor red(colorSaturation, 0, 0);
-RgbColor green(0, colorSaturation, 0);
-RgbColor blue(0, 0, colorSaturation);
-RgbColor white(colorSaturation);
-RgbColor black(0);
+//NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> strip(PixelCount, PixelPin);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(pixelCount, PixelPin, NEO_GRB + NEO_KHZ800);
+
 
 void setup() {
   pinMode(BUILTIN_LED, OUTPUT);
@@ -52,8 +48,9 @@ void setup() {
 
   Serial.println("Initializing NeoPixelBus...");
   // this resets all the neopixels to an off state
-  strip.Begin();
-  strip.Show();
+  //strip.Begin();
+  strip.begin();
+  //strip.Show();
   
   // Connect to WiFi network
   Serial.println();
@@ -81,10 +78,39 @@ void setup() {
 }
 
 
+//RgbColor ledColor(0,0,0);
+uint8_t R;
+uint8_t G;
+uint8_t B;
+
 void led(OSCMessage &msg, int adrOffset) {
-  RgbColor ledColor(msg.getInt(0), msg.getInt(1), msg.getInt(2));
-  strip.SetPixelColor(0, ledColor);
-  strip.Show();
+  R = msg.getInt(0);
+  G = msg.getInt(1); 
+  B = msg.getInt(2);
+  Serial.print("[led] R:");
+  Serial.print(R);
+  Serial.print(",G: ");
+  Serial.print(G);
+  Serial.print(",B: ");
+  Serial.println(B);
+  //strip.SetPixelColor(0, ledColor);
+  strip.setPixelColor(0, strip.Color(R,G,B));
+  //strip.Show();
+  strip.show();
+}
+
+
+void updatePixmap(OSCMessage &msg) {
+  int bytesAdded = msg.getBlob(0, pixelBuffer, pixelCount*3);
+
+  for (int i=0; i+=3; i<bytesAdded) {
+    uint8_t r = pixelBuffer[i];
+    uint8_t g = pixelBuffer[i+1];
+    uint8_t b = pixelBuffer[i+2];
+    strip.setPixelColor(i, r, g, b);
+  }
+  
+  strip.show();
 }
 
 

@@ -18,9 +18,11 @@ class OscPixelPusher():
         self.client = udp_client.UDPClient(ip, port)
 
 
-    def setLed(self, id, r, g, b):
-        msgBuilder = osc_message_builder.OscMessageBuilder(address = "/pixmap")
-        msgBuilder.add_arg(int(id), msgBuilder.ARG_TYPE_INT)
+    #def setLed(self, id, r, g, b):
+    def setLed(self, r, g, b):
+        #print("R:",r," G:", g, " B:", b)
+        msgBuilder = osc_message_builder.OscMessageBuilder(address = "/led")
+        #msgBuilder.add_arg(int(id), msgBuilder.ARG_TYPE_INT)
         msgBuilder.add_arg(int(r), msgBuilder.ARG_TYPE_INT)
         msgBuilder.add_arg(int(g), msgBuilder.ARG_TYPE_INT)
         msgBuilder.add_arg(int(b), msgBuilder.ARG_TYPE_INT)

@@ -47,6 +47,9 @@ import time
 
 from oscPixelPusher import OscPixelPusher
 
+# remoteIp = "192.168.1.209"
+remoteIp = "127.0.0.1"
+remotePort = 1234
 
 RES = array((18,10))
 displayScale = 16
@@ -60,7 +63,7 @@ def main():
     "main function called when the script is run"
     #first we just init pygame and create some empty arrays to work with    
 
-    opp = OscPixelPusher()
+    opp = OscPixelPusher(ip=remoteIp, port=remotePort)
     time.sleep(1)
     opp.setDisplayMode(RES, 8)
     time.sleep(1)
@@ -83,6 +86,9 @@ def main():
         #blitdouble(screen, flame, doubleflame)
         
         opp.updatePixmap(flame[:,:-3].astype(uint8))
+
+        # R, G, B = cmap[flame[5,9].astype(uint8),:]
+        # opp.setLed(R, G, B)
 
         flame = clip(flame, 0, 255)
         # set_plasma_buffer(rgb, cmap, flame)

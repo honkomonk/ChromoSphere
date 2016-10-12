@@ -81,9 +81,25 @@ void setup() {
 }
 
 
+RgbColor ledColor(0,0,0);
+
 void led(OSCMessage &msg, int adrOffset) {
-  RgbColor ledColor(msg.getInt(0), msg.getInt(1), msg.getInt(2));
+  ledColor.R = msg.getInt(0);
+  ledColor.G = msg.getInt(1); 
+  ledColor.B = msg.getInt(2);
+  Serial.print("[led] R:");
+  Serial.print(ledColor.R);
+  Serial.print(",G: ");
+  Serial.print(ledColor.G);
+  Serial.print(",B: ");
+  Serial.println(ledColor.B);
   strip.SetPixelColor(0, ledColor);
+  strip.Show();
+}
+
+
+void updatePixmap(OSCMessage &msg) {
+  
   strip.Show();
 }
 
